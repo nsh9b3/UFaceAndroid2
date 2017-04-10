@@ -1,5 +1,6 @@
 package com.stuff.nsh9b3.ufaceandroid;
 
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Environment;
@@ -25,7 +26,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
 
-public class MainActivity extends AppCompatActivity implements View.OnClickListener, OnAsyncTaskComplete
+public class MainActivity extends AppCompatActivity implements View.OnClickListener, OnAsyncTaskComplete, Configurations
 {
     // List of Buttons (services) a user can select
     public static ArrayList<Button> buttonList;
@@ -46,11 +47,17 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private boolean gotKey = false;
 
+    public static String picPath;
+    public static String docPath;
+
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        picPath = this.getExternalFilesDir(Environment.DIRECTORY_PICTURES).getPath() + "/";
+        docPath = this.getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS).getPath() + "/";
 
         // Get the add button and set the listener to this activity (which is a clickListener)
         addButton = (Button)findViewById(R.id.btn_add);
@@ -61,19 +68,19 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         getServices();
 
-        try
-        {
-            File timeSheet = Utilities.createTimeSheet(this);
-
-            FileWriter fWriter;
-            fWriter = new FileWriter(timeSheet, true);
-            fWriter.write("Starting Tests!\n");
-            fWriter.flush();
-            fWriter.close();
-        } catch (IOException e)
-        {
-            e.printStackTrace();
-        }
+//        try
+//        {
+//            File timeSheet = Utilities.createTimeSheet(this);
+//
+//            FileWriter fWriter;
+//            fWriter = new FileWriter(timeSheet, true);
+//            fWriter.write("Starting Tests!\n");
+//            fWriter.flush();
+//            fWriter.close();
+//        } catch (IOException e)
+//        {
+//            e.printStackTrace();
+//        }
 
         paillier = null;
         GetPublicKey getPublicKey = new GetPublicKey(this, paillier);

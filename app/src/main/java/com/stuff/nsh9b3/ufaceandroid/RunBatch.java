@@ -24,13 +24,15 @@ import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.util.Random;
 
+import static com.stuff.nsh9b3.ufaceandroid.MainActivity.picPath;
+
 public class RunBatch extends AppCompatActivity implements OnAsyncTaskComplete
 {
     int count = 1;
     int origIndex = 0;
     int testIndex = 0;
-    int endOrigIndex = Configurations.origImages.length;
-    int endTextIndex = Configurations.testImages.length;
+    int endOrigIndex = 0;
+    int endTextIndex = 0;
 
     WebService service;
     String serviceName;
@@ -46,11 +48,16 @@ public class RunBatch extends AppCompatActivity implements OnAsyncTaskComplete
     TextView tvTestImage;
     TextView tvCount;
 
+    String[] origImages;
+    String[] testImages;
+
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_run_batch);
+
+        setupImages();
 
         tvOrigImage = (TextView)findViewById(R.id.tv_orig_image);
         tvTestImage = (TextView)findViewById(R.id.tv_test_image);
@@ -71,7 +78,7 @@ public class RunBatch extends AppCompatActivity implements OnAsyncTaskComplete
             {
                 e.printStackTrace();
             }
-
+            Toast.makeText(this, "Starting Batch", Toast.LENGTH_LONG).show();
             startRegistering();
         }
     }
@@ -79,11 +86,11 @@ public class RunBatch extends AppCompatActivity implements OnAsyncTaskComplete
     private void startRegistering()
     {
         Log.d("BATCH", "startRegistering");
-        serviceName = "Bank";
+        serviceName = "Blank";
         serviceAddress = "http://" + Configurations.UFACE_BANK_ADDRESS + "/";
         userIndex = -1;
-        origPassword = generatePassword(Configurations.origImages[origIndex]);
-        userName = Configurations.origImages[origIndex].split("/")[Configurations.origImages[origIndex].split("/").length - 1];
+        origPassword = generatePassword(origImages[origIndex]);
+        userName = origImages[origIndex].split("/")[origImages[origIndex].split("/").length - 1];
         tvOrigImage.setText(userName);
         /*Random rand = new Random();
         userName = userName + "-" + rand.nextInt();*/
@@ -110,8 +117,8 @@ public class RunBatch extends AppCompatActivity implements OnAsyncTaskComplete
     private void startAuthenticating()
     {
         Log.d("BATCH", "startAuthenticating");
-        testPassword = generatePassword(Configurations.testImages[testIndex]);
-        String testName = Configurations.testImages[testIndex].split("/")[Configurations.testImages[testIndex].split("/").length - 1];
+        testPassword = generatePassword(testImages[testIndex]);
+        String testName = testImages[testIndex].split("/")[testImages[testIndex].split("/").length - 1];
         tvTestImage.setText(testName);
 
         try
@@ -201,7 +208,7 @@ public class RunBatch extends AppCompatActivity implements OnAsyncTaskComplete
             case AsyncTaskKeys.AUTH_USER:
                 if(result)
                 {
-                    testPassword = generatePassword(Configurations.testImages[testIndex]);
+                    testPassword = generatePassword(testImages[testIndex]);
 
                     AuthenticatePassword authenticatePassword = new AuthenticatePassword(this, service, testPassword);
                     authenticatePassword.execute();
@@ -331,7 +338,7 @@ public class RunBatch extends AppCompatActivity implements OnAsyncTaskComplete
     public boolean checkFiles()
     {
         boolean isGood = true;
-        for(String path : Configurations.origImages)
+        for(String path : origImages)
         {
             File file = new File(path);
             if(!file.exists())
@@ -343,7 +350,7 @@ public class RunBatch extends AppCompatActivity implements OnAsyncTaskComplete
         }
         if(isGood)
         {
-            for(String path : Configurations.testImages)
+            for(String path : testImages)
             {
                 File file = new File(path);
                 if(!file.exists())
@@ -355,5 +362,75 @@ public class RunBatch extends AppCompatActivity implements OnAsyncTaskComplete
             }
         }
         return isGood;
+    }
+
+    private void setupImages()
+    {
+        origImages = new String[]{
+                picPath + "Abira-c-1.jpeg",
+                picPath + "Adam-c-1.jpg",
+                picPath + "Ande-c-1.jpeg",
+                picPath + "Atoosa-c-1.jpg",
+                picPath + "Ben-c-1.jpg",
+                picPath + "Devin-c-1.jpg",
+                picPath + "Doug-c-1.jpg",
+                picPath + "Dude-c-1.jpg",
+                picPath + "Hug-c-1.jpg",
+                picPath + "Jess-c-1.jpg",
+                picPath + "Jiang-c-1.jpg",
+                picPath + "Kat-c-1.jpg",
+                picPath + "Kyle-c-1.jpg",
+                picPath + "Mel-c-1.jpg",
+                picPath + "Mike-c-1.jpg",
+                picPath + "Nick-c-1.jpg",
+                picPath + "Rand-c-1.jpg",
+                picPath + "Sahi-c-1.jpg",
+                picPath + "Sam-c-1.jpg",
+                picPath + "Snehi-c-1.jpg"
+        };
+        testImages = new String[]{
+                picPath + "Abira-c-2.jpeg",
+                picPath + "Abira-z-1.jpeg",
+                picPath + "Adam-c-2.jpg",
+                picPath + "Adam-z-1.jpg",
+                picPath + "Ande-c-2.jpeg",
+                picPath + "Ande-z-1.jpeg",
+                picPath + "Atoosa-c-2.jpg",
+                picPath + "Atoosa-z-1.jpg",
+                picPath + "Ben-c-2.jpg",
+                picPath + "Ben-z-1.jpg",
+                picPath + "Devin-c-2.jpg",
+                picPath + "Devin-z-1.jpg",
+                picPath + "Doug-c-2.jpg",
+                picPath + "Doug-z-1.jpg",
+                picPath + "Dude-c-2.jpg",
+                picPath + "Dude-z-1.jpg",
+                picPath + "Hug-c-2.jpg",
+                picPath + "Hug-z-1.jpg",
+                picPath + "Jess-c-2.jpg",
+                picPath + "Jess-z-1.jpg",
+                picPath + "Jiang-c-2.jpg",
+                picPath + "Jiang-z-1.jpg",
+                picPath + "Kat-c-2.jpg",
+                picPath + "Kat-z-1.jpg",
+                picPath + "Kyle-c-2.jpg",
+                picPath + "Kyle-z-1.jpg",
+                picPath + "Mel-c-2.jpg",
+                picPath + "Mel-z-1.jpg",
+                picPath + "Mike-c-2.jpg",
+                picPath + "Mike-z-1.jpg",
+                picPath + "Nick-c-2.jpg",
+                picPath + "Nick-z-1.jpg",
+                picPath + "Rand-c-2.jpg",
+                picPath + "Rand-z-1.jpg",
+                picPath + "Sahi-c-2.jpg",
+                picPath + "Sahi-z-1.jpg",
+                picPath + "Sam-c-2.jpg",
+                picPath + "Sam-z-1.jpg",
+                picPath + "Snehi-c-2.jpg",
+                picPath + "Snehi-z-1.jpg"
+        };
+        endOrigIndex = origImages.length;
+        endTextIndex = testImages.length;
     }
 }
