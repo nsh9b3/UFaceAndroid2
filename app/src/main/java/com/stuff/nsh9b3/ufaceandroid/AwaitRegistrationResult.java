@@ -17,6 +17,7 @@ import java.net.URL;
 
 /**
  * Created by nick on 11/21/16.
+ * Asynctask to keep checking the result of registration
  */
 
 public class AwaitRegistrationResult extends AsyncTask
@@ -39,7 +40,7 @@ public class AwaitRegistrationResult extends AsyncTask
     @Override
     protected Object doInBackground(Object[] objects)
     {
-        // Create the string to obtain the public key
+        // Create the string to listen to the web service
         StringBuilder sb = new StringBuilder();
         sb.append(serviceAddress);
         sb.append(Configurations.SERVICE_ADD_USER_RESULT);
@@ -49,7 +50,7 @@ public class AwaitRegistrationResult extends AsyncTask
 
         try
         {
-            // Connect to the data server to validate user name
+            // Connect to the web service to obtain result
             url = new URL(sb.toString());
             conn = (HttpURLConnection) url.openConnection();
             conn.setRequestMethod("POST");
@@ -62,14 +63,15 @@ public class AwaitRegistrationResult extends AsyncTask
             jObject.accumulate(Configurations.SERVICE_USER_KEY, userName);
             String jUser = jObject.toString();
 
+            // Send the json object to the web service
             OutputStream os = conn.getOutputStream();
             BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(os, "UTF-8"));
             writer.write(jUser);
             writer.flush();
-
             writer.close();
             os.close();
 
+            // Check the result of the registration attempt and if the user should check again
             InputStream is = new BufferedInputStream(conn.getInputStream());
             String response = Utilities.convertStreamToString(is).replaceAll("\\\\", "");
             response = response.substring(1, response.length() - 2);

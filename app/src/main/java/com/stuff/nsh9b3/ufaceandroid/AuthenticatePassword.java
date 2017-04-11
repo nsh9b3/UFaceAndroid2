@@ -17,6 +17,7 @@ import java.net.URL;
 
 /**
  * Created by nick on 11/22/16.
+ * An asyncTask to compare the test FV against the stored FV
  */
 
 public class AuthenticatePassword extends AsyncTask
@@ -36,19 +37,19 @@ public class AuthenticatePassword extends AsyncTask
     @Override
     protected Object doInBackground(Object[] objects)
     {
-        // Create the string to obtain the public key
+        // Create the string to send the Encrpted FV
         StringBuilder sb = new StringBuilder();
         sb.append("http://");
         sb.append(Configurations.UFACE_DATA_ADDRESS);
         sb.append("/");
         sb.append(Configurations.UFACE_AUTHENTICATE_PASSWORD);
 
-        // Create a link between Client and UFace key server to obtain public key
+        // Create a link between Client and UFace data server to send Encrypted FV
         URL url;
         HttpURLConnection conn = null;
         try
         {
-            // Connect to the data server to register password
+            // Connect to the data server
             url = new URL(sb.toString());
             conn = (HttpURLConnection) url.openConnection();
             conn.setRequestMethod("POST");
@@ -64,14 +65,15 @@ public class AuthenticatePassword extends AsyncTask
             jObject.accumulate(Configurations.PASSWORD_SIZE_KEY, Configurations.LABELS_IN_FEATURE_VECTOR);
             String jPass = jObject.toString();
 
+            // Send the JSON object to the data server
             OutputStream os = conn.getOutputStream();
             BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(os, "UTF-8"));
             writer.write(jPass);
             writer.flush();
-
             writer.close();
             os.close();
 
+            // Get the results on whether the message was transmitted successfully
             InputStream is = new BufferedInputStream(conn.getInputStream());
             String response = Utilities.convertStreamToString(is).replaceAll("\\\\", "");
             response = response.substring(1, response.length() - 2);

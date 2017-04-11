@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Set;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener, OnAsyncTaskComplete, Configurations
@@ -56,6 +57,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        // Path of where the files are saved
         picPath = this.getExternalFilesDir(Environment.DIRECTORY_PICTURES).getPath() + "/";
         docPath = this.getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS).getPath() + "/";
 
@@ -66,22 +68,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         batchButton = (Button)findViewById(R.id.btn_run_batch);
         batchButton.setOnClickListener(this);
 
+        // Grab the list of service registered with and display them
         getServices();
 
-//        try
-//        {
-//            File timeSheet = Utilities.createTimeSheet(this);
-//
-//            FileWriter fWriter;
-//            fWriter = new FileWriter(timeSheet, true);
-//            fWriter.write("Starting Tests!\n");
-//            fWriter.flush();
-//            fWriter.close();
-//        } catch (IOException e)
-//        {
-//            e.printStackTrace();
-//        }
-
+        // Get the public key
         paillier = null;
         GetPublicKey getPublicKey = new GetPublicKey(this, paillier);
         getPublicKey.execute();
@@ -134,6 +124,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             {
                 Bundle extras = data.getExtras();
 
+                // Add the service to the list of sharedPrefs and make a button visible
                 if(extras.getBoolean(IntentKeys.REGISTRATION_PASS))
                 {
                     SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
@@ -160,13 +151,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
 
+    // Make list of previously registered devices visible again
     private void getServices()
     {
         buttonList = new ArrayList<>();
         layoutList = new ArrayList<>();
         serviceList = new ArrayList<>();
 
-        /*
         SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
         Set<String> servList = sharedPref.getStringSet(SharedPrefKeys.SERVICE_LIST, new HashSet<String>());
 
@@ -184,9 +175,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             // Create an icon on the home screen
             makeNewServiceIcon(webService.serviceName);
         }
-        */
+
     }
 
+    // Makes a new icon on the screen
     private void makeNewServiceIcon(String serviceName)
     {
         LinearLayout parentLayout = (LinearLayout)findViewById(R.id.ll_parent);

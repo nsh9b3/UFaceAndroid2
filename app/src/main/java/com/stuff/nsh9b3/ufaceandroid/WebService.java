@@ -2,6 +2,7 @@ package com.stuff.nsh9b3.ufaceandroid;
 
 /**
  * Created by nick on 11/22/16.
+ * Class that defines what should be in a WebService
  */
 
 public class WebService

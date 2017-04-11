@@ -14,6 +14,7 @@ import java.net.URL;
 
 /**
  * Created by nick on 11/21/16.
+ * AsyncTask to get the public key from the key server
  */
 
 public class GetPublicKey extends AsyncTask
@@ -47,6 +48,7 @@ public class GetPublicKey extends AsyncTask
             conn.setRequestMethod("GET");
             conn.connect();
 
+            // Get the public key data
             BufferedReader br = new BufferedReader(new InputStreamReader(conn.getInputStream()));
             sb = new StringBuilder();
             String line;
@@ -56,12 +58,13 @@ public class GetPublicKey extends AsyncTask
             }
             br.close();
 
-            // Something is odd about the JSON and adds a whole bunch of '\'s
+            // Something is odd about the JSON and adds a whole bunch of '\'s... this fixes it
             String response = sb.toString().replaceAll("\\\\", "");
             response = response.substring(1, response.length() - 2);
             JSONObject jResponse = new JSONObject(response);
             JSONObject jPublicKey = jResponse.getJSONObject(Configurations.UFACE_PUBLIC_KEY_NAME);
 
+            // Create the new Paillier cryptosystem
             paillier = new Paillier(jPublicKey.getString("n"), jPublicKey.getString("g"), jPublicKey.getString("size"));
 
         } catch (MalformedURLException e)

@@ -24,6 +24,9 @@ import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * This activity registers a new web service when  user creates a valid userID and sends the UPass
+ */
 public class RegisterWebService extends AppCompatActivity implements TextWatcher, View.OnClickListener, OnAsyncTaskComplete
 {
     private Button btnRegister;
@@ -75,6 +78,7 @@ public class RegisterWebService extends AppCompatActivity implements TextWatcher
 
     }
 
+    // When the textbox of the username is changed, then disallow registration since no one has any idea about the userID that wants to be used
     @Override
     public void onTextChanged(CharSequence charSequence, int i, int i1, int i2)
     {
@@ -108,6 +112,7 @@ public class RegisterWebService extends AppCompatActivity implements TextWatcher
                     Toast.makeText(getBaseContext(), String.format("The name %s has already been verified as valid.", userID), Toast.LENGTH_LONG).show();
                 } else
                 {
+                    // Attempt to create new user for the web service
                     BeginRegistration beginRegistration = new BeginRegistration(this, webServiceAddress, userID, webServiceName, userIndex);
                     beginRegistration.execute();
                 }
@@ -126,6 +131,7 @@ public class RegisterWebService extends AppCompatActivity implements TextWatcher
         long[] time = new long[5];
         if(requestCode == IntentKeys.REQUEST_TAKE_PHOTO)
         {
+            // Process Photo, execute LBP, then encrypt
             if(resultCode == RESULT_OK)
             {
                 time[0] = System.currentTimeMillis();
@@ -144,6 +150,8 @@ public class RegisterWebService extends AppCompatActivity implements TextWatcher
                 time[3] = System.currentTimeMillis();
                 String password = Utilities.encryptFV(byteFV);
                 time[4] = System.currentTimeMillis();
+
+                // Send the password to the UFace data server
                 RegisterPassword registerPassword = new RegisterPassword(this, webServiceName, userIndex, password, Configurations.LABELS_IN_FEATURE_VECTOR);
                 registerPassword.execute();
             }

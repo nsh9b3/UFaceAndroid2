@@ -17,6 +17,7 @@ import java.net.URL;
 
 /**
  * Created by nick on 11/22/16.
+ * AsyncTask to keep checking the result of the authentication attempt
  */
 
 public class AwaitAuthenticationResult extends AsyncTask
@@ -37,7 +38,7 @@ public class AwaitAuthenticationResult extends AsyncTask
     @Override
     protected Object doInBackground(Object[] objects)
     {
-        // Create the string to obtain the public key
+        // Create the string to listen to the web service
         StringBuilder sb = new StringBuilder();
         sb.append(webService.serviceAddress);
         sb.append(Configurations.UFACE_AUTHENTICATION_RESULT);
@@ -47,7 +48,7 @@ public class AwaitAuthenticationResult extends AsyncTask
 
         try
         {
-            // Connect to the data server to validate user name
+            // Connect to the web service to check authentication
             url = new URL(sb.toString());
             conn = (HttpURLConnection) url.openConnection();
             conn.setRequestMethod("POST");
@@ -60,14 +61,15 @@ public class AwaitAuthenticationResult extends AsyncTask
             jObject.accumulate(Configurations.SERVICE_USER_KEY, webService.userName);
             String jUser = jObject.toString();
 
+            // Send the json object to the web service
             OutputStream os = conn.getOutputStream();
             BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(os, "UTF-8"));
             writer.write(jUser);
             writer.flush();
-
             writer.close();
             os.close();
 
+            // Check the result of the authentication attempt and if the user should check again
             InputStream is = new BufferedInputStream(conn.getInputStream());
             String response = Utilities.convertStreamToString(is).replaceAll("\\\\", "");
             response = response.substring(1, response.length() - 2);

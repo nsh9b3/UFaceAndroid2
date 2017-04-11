@@ -31,10 +31,12 @@ import java.util.Date;
 
 /**
  * Created by nick on 11/23/16.
+ * These functions do random things that don't necessarily fit anywhere
  */
 
 public class Utilities
 {
+    // This function converts an input stream from the service into a String
     public static String convertStreamToString(InputStream is) {
         BufferedReader reader = new BufferedReader(new InputStreamReader(is));
         StringBuilder sb = new StringBuilder();
@@ -56,6 +58,7 @@ public class Utilities
         return sb.toString();
     }
 
+    // Takes a photo using the camera
     public static String takePhoto(Activity activity)
     {
         // Create the File where the photo should go
@@ -100,8 +103,6 @@ public class Utilities
                 storageDir      /* directory */
         );
 
-        // Save a file: path for use with ACTION_VIEW intents
-        //mCurrentPhotoPath = image.getAbsolutePath();
         return image;
     }
 
@@ -116,11 +117,10 @@ public class Utilities
                 storageDir      /* directory */
         );
 
-        // Save a file: path for use with ACTION_VIEW intents
-        //mCurrentPhotoPath = image.getAbsolutePath();
         return file;
     }
 
+    // Takes a bitmap and breaks it into multiple bitmaps (based on the number of sections)
     public static int[][] splitImageIntoSections(Bitmap bitmap)
     {
         int[][] pixelMap = new int[Configurations.GRID_SIZE][Configurations.SECTION_PIXEL_SIZE];
@@ -138,6 +138,7 @@ public class Utilities
         return pixelMap;
     }
 
+    // Converts a bitmap to grayscale (LBP uses intensity instead of color)
     public static Bitmap toGrayscale(Bitmap bmpOriginal)
     {
         int width, height;
@@ -155,6 +156,7 @@ public class Utilities
         return bmpGrayscale;
     }
 
+    // Changes an image size to match the size of the size specified in Configurations file
     public static Bitmap resizeImage(String imagePath)
     {
         Bitmap origBitmap = BitmapFactory.decodeFile(imagePath);
@@ -164,6 +166,9 @@ public class Utilities
         return resizeBitmap;
     }
 
+    // Splits the FV into multiple portions
+    // Each portion is the size of the number of elements that can be encrypted at once
+    // So if there are 944 bins total and each bin uses 13 bits, then 78 ints can be concatenated together
     public static int[][] splitFVForEncryption(int[][] intFV)
     {
         int[][] splitFV = new int[Configurations.BIG_INTS_IN_FEATURE_VECTOR][Configurations.INTS_PER_BIG_INT];
@@ -193,30 +198,43 @@ public class Utilities
         return splitFV;
     }
 
+    // This COMPLICATED function creates each array of integers from the function above into an array of bytes (to be converted to BitIntegers later)
     public static byte[][] createByteFV(int[][] splitFV)
     {
         byte[][] byteFV = new byte[Configurations.BIG_INTS_IN_FEATURE_VECTOR][Configurations.BYTES_PER_BIG_INT];
 
+        // For the number of BigIntegers we need to create
         for(int i = 0; i < Configurations.BIG_INTS_IN_FEATURE_VECTOR; i++)
         {
+            // Grab the array of integers that will be used for this BigInteger
             int[] intArray = splitFV[i];
 
+            // Figure out how many empty bits there are needed at the beginning
             int leftEmptyBits = Configurations.ZERO_BITS_PER_BIG_INT;
+
+            // Values used in calculations
             byte next = 0x00;
             int index = 0;
             int bitsUsedPerByte = 0;
 
+            // For each integer
             for(int k = 0; k < splitFV[i].length; k++)
             {
+                // This should be zero, but depends on the programmer
+                // It's the number of excess bits used to represent each integer
                 leftEmptyBits += Configurations.ZERO_BITS_PER_INT;
+                // This is simply the number of bits needed to represent each integer fully
                 int bitsNeededPerInt = Configurations.BITS_NEEDED_PER_INT;
-
+                // The current integer
                 int val = intArray[k];
 
+                // While we need to skip bits
                 while(bitsNeededPerInt > 0)
                 {
+                    // If we needed to skip more than a byte
                     if(leftEmptyBits >= 8)
                     {
+                        // Add the blank byte to the byte array
                         byteFV[i][index++] = next;
                         next = 0x00;
                         leftEmptyBits -= 8;
@@ -226,18 +244,22 @@ public class Utilities
                         // If we can fill the next byte with ONLY bits from the current int
                         if (bitsNeededPerInt >= (8 - leftEmptyBits - bitsUsedPerByte))
                         {
+                            // Fill the rest of the byte based off this integer
                             int shiftR = bitsNeededPerInt + leftEmptyBits + bitsUsedPerByte - 8;
                             next = (byte) (((val >>> shiftR) & 0xFF) | next);
                             bitsNeededPerInt -= (8 - leftEmptyBits - bitsUsedPerByte);
                             bitsUsedPerByte = 0;
+                            // add the byte
                             byteFV[i][index++] = next;
                             next = 0x00;
-                            leftEmptyBits = 0;
+                            leftEmptyBits = 0; // I think this value should be 'Configurations.ZERO_BITS_PER_INT', but like I said earlier, it should be 0 anyway
                         }
                         else
                         {
+                            // Fill the next byte with what we can of this current integer
                             int shiftL = 8 - bitsNeededPerInt;
                             next = (byte) (((val << shiftL) & 0xFF) | next);
+                            // Get ready for the next integer value
                             bitsUsedPerByte = bitsNeededPerInt;
                             bitsNeededPerInt = 0;
                         }
@@ -249,6 +271,7 @@ public class Utilities
         return byteFV;
     }
 
+    // Encrypt the feature vector by converting each array of bytes to an array of BigIntegers and then calling Paillier Encryption
     public static String encryptFV(byte[][] byteFV)
     {
         BigInteger[] encryptedFV = new BigInteger[Configurations.BIG_INTS_IN_FEATURE_VECTOR];
@@ -259,6 +282,7 @@ public class Utilities
             encryptedFV[i] = MainActivity.paillier.Encryption(bigInt);
         }
 
+        // Convert the Encrypted BigInteger array into a String
         final StringBuilder sb = new StringBuilder();
         for (int i = 0; i < encryptedFV.length; i++)
         {
@@ -268,6 +292,7 @@ public class Utilities
         return sb.toString();
     }
 
+    /*
     public static void writeToFile(String data, Context context, String fileName) {
         try {
             OutputStreamWriter outputStreamWriter = new OutputStreamWriter(context.openFileOutput(fileName, Context.MODE_PRIVATE));
@@ -307,5 +332,5 @@ public class Utilities
         }
 
         return ret;
-    }
+    }*/
 }

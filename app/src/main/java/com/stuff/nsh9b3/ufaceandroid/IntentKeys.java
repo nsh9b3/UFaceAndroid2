@@ -2,6 +2,7 @@ package com.stuff.nsh9b3.ufaceandroid;
 
 /**
  * Created by nick on 11/21/16.
+ * These are the keys used to figure out which activity was just called/finished
  */
 
 public interface IntentKeys

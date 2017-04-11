@@ -16,6 +16,7 @@ import java.util.List;
 
 /**
  * Created by nick on 11/21/16.
+ * Contacts the data server to get the list of services registered with UFace
  */
 
 public class GetServiceList extends AsyncTask
@@ -32,23 +33,24 @@ public class GetServiceList extends AsyncTask
     @Override
     protected Object doInBackground(Object[] objects)
     {
-        // Create the string to obtain the public key
+        // Create the string to contact the data server
         StringBuilder sb = new StringBuilder();
         sb.append("http://");
         sb.append(Configurations.UFACE_DATA_ADDRESS);
         sb.append("/");
         sb.append(Configurations.UFACE_SERVICE_LIST);
 
-        // Create a link between Client and UFace key server to obtain public key
+        // Create a link between Client and UFace data server
         URL url;
         HttpURLConnection conn = null;
         try
         {
-            // Open the URL for the public key
+            // Open the URL for the web services
             url = new URL(sb.toString());
             conn = (HttpURLConnection) url.openConnection();
             conn.connect();
 
+            // Read the list of services
             BufferedReader br = new BufferedReader(new InputStreamReader(conn.getInputStream()));
             sb = new StringBuilder();
             String line;
@@ -58,12 +60,13 @@ public class GetServiceList extends AsyncTask
             }
             br.close();
 
-            // Something is odd about the JSON and adds a whole bunch of '\'s
+            // Something is odd about the JSON and adds a whole bunch of '\'s... this fixes it
             String response = sb.toString().replaceAll("\\\\", "");
             response = response.substring(1, response.length() - 2);
             JSONObject jResponse = new JSONObject(response);
             JSONArray jServices = jResponse.getJSONArray(Configurations.UFACE_SERVICE_LIST_NAME);
 
+            // Create the actual list of services
             for(int i = 0; i < jServices.length(); i++)
             {
                 JSONObject jService = jServices.getJSONObject(i);

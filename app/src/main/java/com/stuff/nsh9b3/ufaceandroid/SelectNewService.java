@@ -16,6 +16,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.ListIterator;
 
+/**
+ * Activity that is used to select a new service that hasn't been registered with yet
+ */
 public class SelectNewService extends AppCompatActivity implements OnAsyncTaskComplete
 {
     ListView listViewServices;
@@ -40,6 +43,7 @@ public class SelectNewService extends AppCompatActivity implements OnAsyncTaskCo
             @Override
             public void onClick(View view)
             {
+                // STart a new activity if a web service has been selected for registering
                 WebService selectedService = services.get(selectedServiceIndex);
                 Intent registerServiceIntent = new Intent(getBaseContext(), RegisterWebService.class);
                 registerServiceIntent.putExtra(IntentKeys.SERVICE_NAME, selectedService.serviceName);
@@ -49,6 +53,8 @@ public class SelectNewService extends AppCompatActivity implements OnAsyncTaskCo
         });
 
         services = new ArrayList<>();
+
+        // Grab the list of services from the UFace data server
         GetServiceList getServiceList = new GetServiceList(this, services);
         getServiceList.execute();
     }
@@ -115,6 +121,7 @@ public class SelectNewService extends AppCompatActivity implements OnAsyncTaskCo
                 {
                     doneRegistering.putExtra(IntentKeys.REGISTRATION_PASS, extras.getBoolean(IntentKeys.REGISTRATION_PASS));
                 }
+
                 setResult(Activity.RESULT_OK, doneRegistering);
                 finish();
             }

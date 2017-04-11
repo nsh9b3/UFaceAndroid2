@@ -2,11 +2,11 @@ package com.stuff.nsh9b3.ufaceandroid;
 
 /**
  * Created by nick on 11/24/16.
+ * These are the keys used to figure out which asyncTask was just finished
  */
 
 public interface AsyncTaskKeys
 {
-    String IS_VALID = "is_valid";
     String USER_INDEX = "user_index";
     String GET_TASK = "get_task";
     String GET_RESULT = "get_result";

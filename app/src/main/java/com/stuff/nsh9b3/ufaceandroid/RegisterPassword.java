@@ -20,6 +20,7 @@ import java.net.URL;
 
 /**
  * Created by nick on 11/21/16.
+ * AsyncTask to Reigster a UPass
  */
 
 public class RegisterPassword extends AsyncTask
@@ -44,14 +45,14 @@ public class RegisterPassword extends AsyncTask
     @Override
     protected Object doInBackground(Object[] objects)
     {
-        // Create the string to obtain the public key
+        // Create the string to communicate with the data server
         StringBuilder sb = new StringBuilder();
         sb.append("http://");
         sb.append(Configurations.UFACE_DATA_ADDRESS);
         sb.append("/");
         sb.append(Configurations.UFACE_REGISTRATION_PASSWORD);
 
-        // Create a link between Client and UFace key server to obtain public key
+        // Create a link between Client and UFace data server to send UPass
         URL url;
         HttpURLConnection conn = null;
         try
@@ -72,14 +73,15 @@ public class RegisterPassword extends AsyncTask
             jObject.accumulate(Configurations.PASSWORD_SIZE_KEY, size);
             String jPass = jObject.toString();
 
+            // Send the jsob object to the data server
             OutputStream os = conn.getOutputStream();
             BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(os, "UTF-8"));
             writer.write(jPass);
             writer.flush();
-
             writer.close();
             os.close();
 
+            // Get the result of the registration
             InputStream is = new BufferedInputStream(conn.getInputStream());
             String response = Utilities.convertStreamToString(is).replaceAll("\\\\", "");
             response = response.substring(1, response.length() - 2);

@@ -19,6 +19,7 @@ import java.net.URL;
 
 /**
  * Created by nick on 11/21/16.
+ * Creates a new user in the web service based on the userID
  */
 
 public class BeginRegistration extends AsyncTask
@@ -42,7 +43,7 @@ public class BeginRegistration extends AsyncTask
     @Override
     protected Object doInBackground(Object[] objects)
     {
-        // Create the string to obtain the public key
+        // Create the string to contact the web service
         StringBuilder sb = new StringBuilder();
         sb.append(address);
         sb.append(Configurations.SERVICE_ADD_USER);
@@ -52,7 +53,7 @@ public class BeginRegistration extends AsyncTask
 
         try
         {
-            // Connect to the data server to validate user name
+            // Connect to the web service to validate username
             url = new URL(sb.toString());
             conn = (HttpURLConnection) url.openConnection();
             conn.setRequestMethod("POST");
@@ -66,14 +67,15 @@ public class BeginRegistration extends AsyncTask
             jObject.accumulate(Configurations.SERVICE_SERVICE_KEY, serviceName);
             String jUser = jObject.toString();
 
+            // Send the json object to the web service
             OutputStream os = conn.getOutputStream();
             BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(os, "UTF-8"));
             writer.write(jUser);
             writer.flush();
-
             writer.close();
             os.close();
 
+            // Get the result on if the userID is valid and if the user should continue with creating a UPass
             InputStream is = new BufferedInputStream(conn.getInputStream());
             String response = Utilities.convertStreamToString(is).replaceAll("\\\\", "");
             response = response.substring(1, response.length() - 2);

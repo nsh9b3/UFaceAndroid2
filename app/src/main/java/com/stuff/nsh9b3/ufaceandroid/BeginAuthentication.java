@@ -35,7 +35,7 @@ public class BeginAuthentication extends AsyncTask
     @Override
     protected Object doInBackground(Object[] objects)
     {
-        // Create the string to obtain the public key
+        // Create the string to contact the web service for authentication
         StringBuilder sb = new StringBuilder();
         sb.append(webService.serviceAddress);
         sb.append(Configurations.UFACE_AUTHENTICATE_USER);
@@ -45,7 +45,7 @@ public class BeginAuthentication extends AsyncTask
 
         try
         {
-            // Connect to the data server to validate user name
+            // Connect to the web service to say you want to begin an authentication attempt
             url = new URL(sb.toString());
             conn = (HttpURLConnection) url.openConnection();
             conn.setRequestMethod("POST");
@@ -59,14 +59,15 @@ public class BeginAuthentication extends AsyncTask
             jObject.accumulate(Configurations.SERVICE_SERVICE_KEY, webService.serviceName);
             String jUser = jObject.toString();
 
+            // Send the json object to the web service
             OutputStream os = conn.getOutputStream();
             BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(os, "UTF-8"));
             writer.write(jUser);
             writer.flush();
-
             writer.close();
             os.close();
 
+            // Get the result from the web service for if authentication can begin
             InputStream is = new BufferedInputStream(conn.getInputStream());
             String response = Utilities.convertStreamToString(is).replaceAll("\\\\", "");
             response = response.substring(1, response.length() - 2);

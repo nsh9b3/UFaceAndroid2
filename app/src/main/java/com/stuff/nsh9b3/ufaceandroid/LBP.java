@@ -7,6 +7,7 @@ import java.util.HashMap;
 
 /**
  * Created by nick on 11/21/16.
+ * Executes LBP on an entire image (except for the first/last row/col
  */
 
 public class LBP
@@ -14,6 +15,7 @@ public class LBP
     // Keys for histogram containing uniform numbers only
     private static HashMap<Integer, Integer> histogramKeys;
 
+    // Generates a huge histogram from multiple concatenated histograms
     public static int[][] generateFeatureVector(int[][] pixels)
     {
         int[][] featureVector = new int[Configurations.GRID_SIZE][Configurations.BINS];
@@ -22,6 +24,7 @@ public class LBP
         histogramKeys = new HashMap<>();
         generateKeyMappings(histogramKeys);
 
+        // For each section generate the histogram
         for(int i = 0; i < Configurations.GRID_SIZE; i++)
         {
             featureVector[i] = generateRegionHistogram(pixels, i);
@@ -29,6 +32,7 @@ public class LBP
 
         return featureVector;
     }
+
 
     private static int[] generateRegionHistogram(int[][] pixels, int region)
     {
@@ -38,6 +42,7 @@ public class LBP
         int startCol = (region % Configurations.GRID_ROWS != 0 ? 0 : 1);
         int endCol = (region % Configurations.GRID_ROWS != (Configurations.GRID_ROWS - 1) ? Configurations.SECTION_PIXEL_COLS : Configurations.SECTION_PIXEL_COLS - 1);
 
+        // For each pixel, generate the label for each pixel
         for(int i = startRow; i < endRow; i++)
         {
             for(int k = startCol; k < endCol; k++)
@@ -56,6 +61,9 @@ public class LBP
         return histogram;
     }
 
+    // This generates a label for a specific pixel located at 'row * Configurations.SECTION_PIXEL_ROWS + col' inside the section 'region'
+    // It compares the intensity value to the values of each pixel surrounding the center pixel
+    // The reason there are so many checks is because I first make sure the pixel I'm checking is not on the edge of the specific section
     private static int getLabel(int[][] pixels, int region, int row, int col)
     {
         int label = 0;
@@ -197,7 +205,9 @@ public class LBP
     }
 
 
-    //This probably won't work with different grid heights and widths
+    //This 'probably' won't work with different grid heights and widths - although I'm not sure
+    // Generates a label for a specific pixel
+    // THIS IS OLD
     private static int getLabel(int[][] pixels, int region, int row, int col,
                                 boolean secLeft, boolean secRight,
                                 boolean secUp, boolean secDown)

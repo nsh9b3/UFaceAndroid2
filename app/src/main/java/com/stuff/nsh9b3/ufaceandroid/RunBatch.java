@@ -26,6 +26,10 @@ import java.util.Random;
 
 import static com.stuff.nsh9b3.ufaceandroid.MainActivity.picPath;
 
+/**
+ * This activity just runs a bunch of test using the data stored in the pictures directory of this application
+ * Change the values 'setupImages()' for different tests
+ */
 public class RunBatch extends AppCompatActivity implements OnAsyncTaskComplete
 {
     int count = 1;
